@@ -1,0 +1,97 @@
+﻿<Window x:Class="RealEstatePriceForecast.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RealEstatePriceForecast"
+        mc:Ignorable="d"
+             Title="Прогнозирование цен на недвижимость" Height="600" Width="800">
+    <Grid>
+        <TabControl>
+            <TabItem Header="Поиск недвижимости">
+                <StackPanel Margin="10">
+                    <WrapPanel Margin="0 0 0 10">
+                        <TextBlock Text="Метро:" Height="25" Margin="5"/>
+                        <TextBox x:Name="MetroStationTextBox" Width="120" Height="25" Margin="5"/>
+
+                        <TextBlock Text="Площадь:" Height="25" Margin="5"/>
+                        <TextBox x:Name="AreaTextBox" Width="100" Height="25" Margin="5"/>
+
+                        <ComboBox x:Name="RoomsComboBox" Width="100" Height="25" Margin="5">
+                            <ComboBoxItem>1 комн.</ComboBoxItem>
+                            <ComboBoxItem>2 комн.</ComboBoxItem>
+                            <ComboBoxItem>3 комн.</ComboBoxItem>
+                            <ComboBoxItem>4+ комн.</ComboBoxItem>
+                        </ComboBox>
+
+                        <ComboBox x:Name="BuildingTypeComboBox" Width="100" Height="25" Margin="5">
+                            <ComboBoxItem>Новостройка</ComboBoxItem>
+                            <ComboBoxItem>Вторичка</ComboBoxItem>
+                        </ComboBox>
+
+                        <ComboBox x:Name="MetroDistanceComboBox" Width="110" Height="25" Margin="5">
+                            <ComboBoxItem>До 5 мин пешком</ComboBoxItem>
+                            <ComboBoxItem>До 10 мин пешком</ComboBoxItem>
+                            <ComboBoxItem>До 15 мин на транспорте</ComboBoxItem>
+                            <ComboBoxItem>Не важно</ComboBoxItem>
+                        </ComboBox>
+
+                        <Button Content="Найти" Width="70" Height="25" Margin="5"
+                    Background="Gray" Foreground="White" Click="OnSearchClick"/>
+                    </WrapPanel>
+
+                    <Image Source="/Resources/img3.png" Height="111" Width="339" />
+
+                </StackPanel>
+            </TabItem>
+
+
+
+            <TabItem Header="Калькулятор ипотеки">
+                <StackPanel Margin="20">
+
+                    <!-- Стоимость недвижимости -->
+                    <TextBlock Text="Стоимость недвижимости" FontWeight="Bold"/>
+                    <TextBox x:Name="PropertyPriceTextBox" TextChanged="PropertyPriceTextBox_TextChanged"/>
+                    <Slider x:Name="PropertyPriceSlider" Minimum="1000000" Maximum="50000000" TickFrequency="100000" IsSnapToTickEnabled="True" ValueChanged="PropertyPriceSlider_ValueChanged"/>
+
+                    <!-- Первоначальный взнос -->
+                    <TextBlock Text="Первоначальный взнос" FontWeight="Bold"/>
+                    <TextBox x:Name="DownPaymentTextBox" TextChanged="DownPaymentTextBox_TextChanged"/>
+                    <Slider x:Name="DownPaymentSlider" Minimum="0" Maximum="5000000" TickFrequency="50000" IsSnapToTickEnabled="True" ValueChanged="DownPaymentSlider_ValueChanged"/>
+
+                    <!-- Срок кредита -->
+                    <TextBlock Text="Срок кредита (лет)" FontWeight="Bold"/>
+                    <TextBox x:Name="LoanTermTextBox" TextChanged="LoanTermTextBox_TextChanged"/>
+                    <Slider x:Name="LoanTermSlider" Minimum="5" Maximum="30" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="LoanTermSlider_ValueChanged"/>
+
+                    <!-- Процентная ставка -->
+                    <TextBlock Text="Процентная ставка (%)" FontWeight="Bold"/>
+                    <TextBox x:Name="InterestRateTextBox" TextChanged="InterestRateTextBox_TextChanged"/>
+                    <Slider x:Name="InterestRateSlider" Minimum="2" Maximum="30" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="InterestRateSlider_ValueChanged"/>
+
+                    <!-- Результаты расчета -->
+                    <TextBlock Text="Результаты:" FontWeight="Bold" Margin="0,10,0,0"/>
+                    <TextBlock x:Name="MonthlyPaymentTextBlock"/>
+                    <TextBlock x:Name="LoanAmountTextBlock"/>
+                    <TextBlock x:Name="TotalInterestTextBlock"/>
+                    <TextBlock x:Name="TotalPaymentTextBlock"/>
+                    <TextBlock x:Name="RequiredIncomeTextBlock"/>
+
+                </StackPanel>
+            </TabItem>
+
+            <TabItem Header="Аналитика">
+                <StackPanel Margin="10,10,10,10" Height="414">
+                    <Image Source="/Resources/img2.jpg" Height="398" Width="649" />
+
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Карта">
+                <Grid>
+                    <WebBrowser x:Name="OSMMapBrowser" Loaded="OSMMapBrowser_Loaded"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
