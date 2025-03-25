@@ -157,6 +157,7 @@ namespace RealEstatePriceForecast
                 InterestRateSlider.Value = value;
         }
 
+
         private void OSMMapBrowser_Loaded(object sender, RoutedEventArgs e)
         {
             string htmlFilePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "osm_map.html");
