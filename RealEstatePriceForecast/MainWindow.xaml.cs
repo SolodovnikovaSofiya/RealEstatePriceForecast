@@ -1,5 +1,7 @@
-﻿using Microsoft.Win32;
+﻿using Microsoft.ML.OnnxRuntime;
+using Microsoft.Win32;
 using System;
+using Microsoft.ML.OnnxRuntime.Tensors;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -15,6 +17,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Globalization;
+using static RealEstatePriceForecast.MainWindow;
+using static System.Collections.Specialized.BitVector32;
 
 namespace RealEstatePriceForecast
 {
@@ -23,11 +28,16 @@ namespace RealEstatePriceForecast
     /// </summary>
     public partial class MainWindow : Window
     {
+        private InferenceSession _session;
         public MainWindow()
         {
             SetWebBrowserFeatureControl();
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
+            LoadModel();
+            _session = new InferenceSession("lightgbm_model_opset8.onnx"); // Загружаем модель
+
+            var metroData = new MetroData("metro_converted.csv");
         }
 
         private void SetWebBrowserFeatureControl()
@@ -48,11 +58,91 @@ namespace RealEstatePriceForecast
             InterestRateSlider.Value = 8;
             UpdateCalculations();
         }
+        private void LoadModel()
+        {
+           try
+            {
+                var session = new InferenceSession("lightgbm_model_opset8.onnx");
+                Console.WriteLine("Модель загружена успешно!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка: {ex.Message}");
+            }
+        }
+        private double PredictPrice(double area, double lat, double lon, string rooms, string buildingType, string metroStation)
+        {
+            // Подготовка входных данных в формате массива (замени на реальные признаки)
+            float[] inputData = new float[] { (float)area, (float)lat, (float)lon, GetRooms(rooms), GetBuildingType(buildingType), metroStation};
+
+            // Создаем тензор
+            var inputTensor = new DenseTensor<float>(inputData, new int[] { 1, inputData.Length });
+            var inputs = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor("input", inputTensor) };
+
+            // Выполняем предсказание
+            using (var results = _session.Run(inputs))
+            {
+                var output = results.First().AsEnumerable<float>().ToArray();
+                return output[0]; // Получаем итоговую цену
+            }
+        }
+
+        // Функции кодирования категориальных признаков
+        private float GetRooms(string rooms)
+        {
+            return rooms switch
+            {
+                "1 комн." => 1,
+                "2 комн." => 2,
+                "3 комн." => 3,
+                "4+ комн." => 4,
+                _ => 1
+            };
+        }
+
+        private float GetBuildingType(string buildingType)
+        {
+            return buildingType == "Новостройка" ? 1 : 0;
+        }
+
 
         private void OnSearchClick(object sender, RoutedEventArgs e)
         {
-            
+            string metroStation = MetroStationTextBox.Text;
+            if (string.IsNullOrWhiteSpace(metroStation))
+            {
+                MessageBox.Show("Введите станцию метро!");
+                return;
+            }
+
+            var (lat, lon) = metroData.GetCoordinates(metroStation);
+            if (lat == 0 && lon == 0)
+            {
+                MessageBox.Show("Станция метро не найдена!");
+                return;
+            }
+
+            if (!double.TryParse(AreaTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out double area))
+            {
+                MessageBox.Show("Введите корректную площадь!");
+                return;
+            }
+
+            string rooms = RoomsComboBox.Text;
+            string buildingType = BuildingTypeComboBox.Text;
+            string metroDistance = MetroDistanceComboBox.Text;
+
+            double currentPrice = PredictPrice(area, lat, lon, rooms, buildingType, metroDistance, year: 2025);
+            double price2027 = PredictPrice(area, lat, lon, rooms, buildingType, metroDistance, year: 2027);
+            double price2030 = PredictPrice(area, lat, lon, rooms, buildingType, metroDistance, year: 2030);
+            double price2035 = PredictPrice(area, lat, lon, rooms, buildingType, metroDistance, year: 2035);
+
+            MessageBox.Show($"Текущая цена: {currentPrice:N0} ₽\n" +
+                            $"Цена в 2027: {price2027:N0} ₽\n" +
+                            $"Цена в 2030: {price2030:N0} ₽\n" +
+                            $"Цена в 2035: {price2035:N0} ₽", "Результат");
         }
+
 
         private void UpdateCalculations()
         {
@@ -193,6 +283,32 @@ namespace RealEstatePriceForecast
 
             OSMMapBrowser.Navigate(new Uri(htmlFilePath));
         }
+        public class MetroData
+        {
+            private Dictionary<string, (double Latitude, double Longitude)> metroCoordinates;
+
+            public MetroData(string filePath)
+            {
+                metroCoordinates = new Dictionary<string, (double, double)>();
+
+                foreach (var line in File.ReadLines(filePath))
+                {
+                    var parts = line.Split(',');
+                    if (parts.Length == 3 && double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out double lat)
+                                           && double.TryParse(parts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out double lon))
+                    {
+                        metroCoordinates[parts[0]] = (lat, lon);
+                    }
+                }
+            }
+
+            public (double Latitude, double Longitude) GetCoordinates(string metroStation)
+            {
+                return metroCoordinates.TryGetValue(metroStation, out var coords) ? coords : (0, 0);
+            }
+
+        }
+
 
     }
 }

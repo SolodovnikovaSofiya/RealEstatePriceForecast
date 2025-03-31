@@ -39,6 +39,7 @@
                         <Button Content="Найти" Width="70" Height="25" Margin="5"
                     Background="Gray" Foreground="White" Click="OnSearchClick"/>
                     </WrapPanel>
+                    <TextBlock x:Name="PriceTextBlock" Text="Цена: -" FontSize="16" Margin="10"/>
 
                     <Image Source="/Resources/img3.png" Height="111" Width="339" />
 
