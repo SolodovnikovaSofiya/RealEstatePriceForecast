@@ -27,17 +27,13 @@ namespace RealEstatePriceForecast
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {
-        private InferenceSession _session;
+    { 
         public MainWindow()
         {
             SetWebBrowserFeatureControl();
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
-            LoadModel();
-            _session = new InferenceSession("lightgbm_model_opset8.onnx"); // Загружаем модель
-
-            var metroData = new MetroData("metro_converted.csv");
+     
         }
 
         private void SetWebBrowserFeatureControl()
@@ -57,91 +53,124 @@ namespace RealEstatePriceForecast
             LoanTermSlider.Value = 20;
             InterestRateSlider.Value = 8;
             UpdateCalculations();
-        }
-        private void LoadModel()
-        {
-           try
+
+
+            foreach (string line in File.ReadAllLines("metro_converted.csv"))
             {
-                var session = new InferenceSession("lightgbm_model_opset8.onnx");
-                Console.WriteLine("Модель загружена успешно!");
+                // Разбиваем строку по точке с запятой
+                string[] parts = line.Split(';');
+
+                // Проверяем, что строка содержит 3 части (название, широта, долгота)
+                if (parts.Length >= 3)
+                {
+                    try
+                    {
+                        // Очищаем данные от лишних пробелов и кавычек
+                        string name = parts[0].Trim().Trim('"');
+                        string latStr = parts[1].Trim().Trim('"');
+                        string lonStr = parts[2].Trim().Trim('"');
+
+                        // Парсим координаты с учетом культуры (для правильного чтения float)
+                        float latitude = float.Parse(latStr, CultureInfo.InvariantCulture);
+                        float longitude = float.Parse(lonStr, CultureInfo.InvariantCulture);
+
+                        // Добавляем станцию в ComboBox
+                        cmbMetroStations.Items.Add(new MetroStation(name, latitude, longitude));
+                    }
+                    catch (Exception ex) when (ex is FormatException || ex is IndexOutOfRangeException)
+                    {
+                        // Логируем ошибку без прерывания работы
+                        Debug.WriteLine($"Ошибка в строке: {line}\n{ex.Message}");
+                    }
+                }
+            }
+
+        }
+
+        // Обновляем широту и долготу в отдельных TextBlock при выборе станции
+        private void cmbMetroStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbMetroStations.SelectedItem is MetroStation station)
+            {
+                txtLatitude.Text = station.Latitude.ToString("F6");
+                txtLongitude.Text = station.Longitude.ToString("F6");
+            }
+        }
+        // Класс для хранения информации о станциях метро
+        public class MetroStation
+        {
+            public string Name { get; }
+            public float Latitude { get; }
+            public float Longitude { get; }
+
+            public MetroStation(string name, float lat, float lon)
+            {
+                Name = name;
+                Latitude = lat;
+                Longitude = lon;
+            }
+
+            public override string ToString() => Name; // Отображение в ComboBox
+        }
+
+        private void btnPredict_Click(object sender, RoutedEventArgs e)
+        {
+            // Проверяем ввод и преобразуем строки в float
+            if (!float.TryParse(txtMinutesToMetro.Text, out float minutesToMetro) ||
+                !float.TryParse(txtRooms.Text, out float rooms) ||
+                !float.TryParse(txtArea.Text, out float area) ||
+                !float.TryParse(txtLivingArea.Text, out float livingArea) ||
+                !float.TryParse(txtKitchenArea.Text, out float kitchenArea) ||
+                !float.TryParse(txtFloor.Text, out float floor) ||
+                !float.TryParse(txtTotalFloors.Text, out float totalFloors) ||
+                !float.TryParse(txtLatitude.Text, out float latitude) ||
+                !float.TryParse(txtLongitude.Text, out float longitude))
+            {
+                MessageBox.Show("Некорректный ввод! Проверьте, что все поля содержат числа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            // Проверяем, что значения в допустимых пределах
+            if (area <= 0 || rooms <= 0 || floor <= 0 || minutesToMetro < 0)
+            {
+                MessageBox.Show("Некорректные значения! Проверьте вводимые данные.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            // Формируем массив входных данных
+            float[] input = { minutesToMetro, rooms, area, livingArea, kitchenArea, floor, totalFloors, latitude, longitude };
+
+            // Вызываем предсказание через ONNX
+            float predictedPrice = PredictPrice(input);
+
+            // Проверяем, что предсказание прошло успешно
+            if (predictedPrice > 0)
+            {
+                txtResult.Text = $"Прогнозируемая цена: {predictedPrice:0,0} руб.";
+            }
+            else
+            {
+                txtResult.Text = "Ошибка при предсказании.";
+            }
+        }
+
+        private float PredictPrice(float[] input)
+        {
+            try
+            {
+                // Используем ваш код для предсказания
+                var predictor = new PricePredictor("lightgbm_exp.onnx");
+                float predictedPrice = predictor.Predict(input);
+
+                return predictedPrice;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка: {ex.Message}");
+                MessageBox.Show($"Ошибка при предсказании: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-        private double PredictPrice(double area, double lat, double lon, string rooms, string buildingType, string metroStation)
-        {
-            // Подготовка входных данных в формате массива (замени на реальные признаки)
-            float[] inputData = new float[] { (float)area, (float)lat, (float)lon, GetRooms(rooms), GetBuildingType(buildingType), metroStation};
-
-            // Создаем тензор
-            var inputTensor = new DenseTensor<float>(inputData, new int[] { 1, inputData.Length });
-            var inputs = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor("input", inputTensor) };
-
-            // Выполняем предсказание
-            using (var results = _session.Run(inputs))
-            {
-                var output = results.First().AsEnumerable<float>().ToArray();
-                return output[0]; // Получаем итоговую цену
-            }
+            return -1;
         }
 
-        // Функции кодирования категориальных признаков
-        private float GetRooms(string rooms)
-        {
-            return rooms switch
-            {
-                "1 комн." => 1,
-                "2 комн." => 2,
-                "3 комн." => 3,
-                "4+ комн." => 4,
-                _ => 1
-            };
-        }
-
-        private float GetBuildingType(string buildingType)
-        {
-            return buildingType == "Новостройка" ? 1 : 0;
-        }
-
-
-        private void OnSearchClick(object sender, RoutedEventArgs e)
-        {
-            string metroStation = MetroStationTextBox.Text;
-            if (string.IsNullOrWhiteSpace(metroStation))
-            {
-                MessageBox.Show("Введите станцию метро!");
-                return;
-            }
-
-            var (lat, lon) = metroData.GetCoordinates(metroStation);
-            if (lat == 0 && lon == 0)
-            {
-                MessageBox.Show("Станция метро не найдена!");
-                return;
-            }
-
-            if (!double.TryParse(AreaTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out double area))
-            {
-                MessageBox.Show("Введите корректную площадь!");
-                return;
-            }
-
-            string rooms = RoomsComboBox.Text;
-            string buildingType = BuildingTypeComboBox.Text;
-            string metroDistance = MetroDistanceComboBox.Text;
-
-            double currentPrice = PredictPrice(area, lat, lon, rooms, buildingType, metroDistance, year: 2025);
-            double price2027 = PredictPrice(area, lat, lon, rooms, buildingType, metroDistance, year: 2027);
-            double price2030 = PredictPrice(area, lat, lon, rooms, buildingType, metroDistance, year: 2030);
-            double price2035 = PredictPrice(area, lat, lon, rooms, buildingType, metroDistance, year: 2035);
-
-            MessageBox.Show($"Текущая цена: {currentPrice:N0} ₽\n" +
-                            $"Цена в 2027: {price2027:N0} ₽\n" +
-                            $"Цена в 2030: {price2030:N0} ₽\n" +
-                            $"Цена в 2035: {price2035:N0} ₽", "Результат");
-        }
 
 
         private void UpdateCalculations()
@@ -283,32 +312,48 @@ namespace RealEstatePriceForecast
 
             OSMMapBrowser.Navigate(new Uri(htmlFilePath));
         }
-        public class MetroData
+       
+
+
+    }
+    public class PricePredictor
+    {
+        private readonly InferenceSession _session;
+        private readonly float[] _meanValues = { 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 }; // Средние значения
+
+        public PricePredictor(string modelPath)
         {
-            private Dictionary<string, (double Latitude, double Longitude)> metroCoordinates;
-
-            public MetroData(string filePath)
-            {
-                metroCoordinates = new Dictionary<string, (double, double)>();
-
-                foreach (var line in File.ReadLines(filePath))
-                {
-                    var parts = line.Split(',');
-                    if (parts.Length == 3 && double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out double lat)
-                                           && double.TryParse(parts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out double lon))
-                    {
-                        metroCoordinates[parts[0]] = (lat, lon);
-                    }
-                }
-            }
-
-            public (double Latitude, double Longitude) GetCoordinates(string metroStation)
-            {
-                return metroCoordinates.TryGetValue(metroStation, out var coords) ? coords : (0, 0);
-            }
-
+            _session = new InferenceSession(modelPath);
         }
 
+        public float Predict(float[] inputFeatures)
+        {
+            try
+            {
+                int requiredLength = 17;
 
+                // Если признаков меньше 17, дополняем средними значениями
+                float[] fullInput = inputFeatures.Concat(_meanValues.Skip(inputFeatures.Length).Take(requiredLength - inputFeatures.Length)).ToArray();
+
+                // Создаём тензор
+                var inputTensor = new DenseTensor<float>(fullInput, new int[] { 1, fullInput.Length });
+
+                var inputs = new NamedOnnxValue[]
+                {
+                NamedOnnxValue.CreateFromTensor("input", inputTensor)
+                };
+
+                using (var results = _session.Run(inputs))
+                {
+                    var output = results.First().AsEnumerable<float>().ToArray();
+                    return output[0]; // Возвращаем исходное значение без преобразования
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при предсказании: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            return -1;
+        }
     }
 }

@@ -9,39 +9,54 @@
     <Grid>
         <TabControl>
             <TabItem Header="Поиск недвижимости">
-                <StackPanel Margin="10">
-                    <WrapPanel Margin="0 0 0 10">
-                        <TextBlock Text="Метро:" Height="25" Margin="5"/>
-                        <TextBox x:Name="MetroStationTextBox" Width="120" Height="25" Margin="5"/>
+                <StackPanel Margin="10,0,0,0">
+                    <WrapPanel Orientation="Vertical" Width="410" Height="485" HorizontalAlignment="Center" Margin="0,50,0,0" VerticalAlignment="Center">
 
-                        <TextBlock Text="Площадь:" Height="25" Margin="5"/>
-                        <TextBox x:Name="AreaTextBox" Width="100" Height="25" Margin="5"/>
+                        <!-- Минут до метро -->
+                        <TextBlock Text="Минут до метро:" Width="150" VerticalAlignment="Center"/>
+                        <TextBox Name="txtMinutesToMetro" Width="200" />
 
-                        <ComboBox x:Name="RoomsComboBox" Width="100" Height="25" Margin="5">
-                            <ComboBoxItem>1 комн.</ComboBoxItem>
-                            <ComboBoxItem>2 комн.</ComboBoxItem>
-                            <ComboBoxItem>3 комн.</ComboBoxItem>
-                            <ComboBoxItem>4+ комн.</ComboBoxItem>
-                        </ComboBox>
+                        <!-- Количество комнат -->
+                        <TextBlock Text="Количество комнат:" Width="150" VerticalAlignment="Center"/>
+                        <TextBox Name="txtRooms" Width="200" />
 
-                        <ComboBox x:Name="BuildingTypeComboBox" Width="100" Height="25" Margin="5">
-                            <ComboBoxItem>Новостройка</ComboBoxItem>
-                            <ComboBoxItem>Вторичка</ComboBoxItem>
-                        </ComboBox>
+                        <!-- Площадь (м²) -->
+                        <TextBlock Text="Площадь (м²):" Width="150" VerticalAlignment="Center"/>
+                        <TextBox Name="txtArea" Width="200" />
 
-                        <ComboBox x:Name="MetroDistanceComboBox" Width="110" Height="25" Margin="5">
-                            <ComboBoxItem>До 5 мин пешком</ComboBoxItem>
-                            <ComboBoxItem>До 10 мин пешком</ComboBoxItem>
-                            <ComboBoxItem>До 15 мин на транспорте</ComboBoxItem>
-                            <ComboBoxItem>Не важно</ComboBoxItem>
-                        </ComboBox>
+                        <!-- Жилая площадь -->
+                        <TextBlock Text="Жилая площадь (м²):" Width="150" VerticalAlignment="Center"/>
+                        <TextBox Name="txtLivingArea" Width="200" />
 
-                        <Button Content="Найти" Width="70" Height="25" Margin="5"
-                    Background="Gray" Foreground="White" Click="OnSearchClick"/>
+                        <!-- Площадь кухни -->
+                        <TextBlock Text="Площадь кухни (м²):" Width="150" VerticalAlignment="Center"/>
+                        <TextBox Name="txtKitchenArea" Width="200" />
+
+                        <!-- Этаж -->
+                        <TextBlock Text="Этаж:" Width="150" VerticalAlignment="Center"/>
+                        <TextBox Name="txtFloor" Width="200" />
+
+                        <!-- Всего этажей -->
+                        <TextBlock Text="Всего этажей:" Width="150" VerticalAlignment="Center"/>
+                        <TextBox Name="txtTotalFloors" Width="200" />
+
+                        <!-- Выбор станции метро -->
+                        <TextBlock Text="Станция метро:" Width="150" VerticalAlignment="Center"/>
+                        <ComboBox Name="cmbMetroStations" Width="200" SelectionChanged="cmbMetroStations_SelectionChanged"/>
+
+                        <TextBlock Text="Широта:" Width="150" VerticalAlignment="Center"/>
+                        <TextBlock Name="txtLatitude" Width="200" FontWeight="Bold" Foreground="DarkBlue"/>
+
+                        <TextBlock Text="Долгота:" Width="150" VerticalAlignment="Center"/>
+                        <TextBlock Name="txtLongitude" Width="200" FontWeight="Bold" Foreground="DarkBlue"/>
+
+                        <!-- Кнопка для предсказания -->
+                        <Button Content="Прогноз цены" Width="200" Height="40" Foreground="White" Click="btnPredict_Click" Margin="0,10,0,0" Background="#FF6F6B6B"/>
+
+                        <!-- Поле для отображения результата -->
+                        <TextBlock Name="txtResult" FontSize="16" FontWeight="Bold" Foreground="Blue" Margin="0,10,0,0" Height="26" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+
                     </WrapPanel>
-                    <TextBlock x:Name="PriceTextBlock" Text="Цена: -" FontSize="16" Margin="10"/>
-
-                    <Image Source="/Resources/img3.png" Height="111" Width="339" />
 
                 </StackPanel>
             </TabItem>
