@@ -10,54 +10,66 @@
         <TabControl>
             <TabItem Header="Поиск недвижимости">
                 <StackPanel Margin="10,0,0,0">
-                    <WrapPanel Orientation="Vertical" Width="410" Height="485" HorizontalAlignment="Center" Margin="0,50,0,0" VerticalAlignment="Center">
+                    <WrapPanel Margin="20" Width="398" HorizontalAlignment="Center" Height="522" Orientation="Vertical">
+                        <!-- Числовые поля -->
+                        <TextBlock Text="Минут до метро:" />
+                        <TextBox x:Name="txtMinutesToMetro" />
 
-                        <!-- Минут до метро -->
-                        <TextBlock Text="Минут до метро:" Width="150" VerticalAlignment="Center"/>
-                        <TextBox Name="txtMinutesToMetro" Width="200" />
+                        <TextBlock Text="Количество комнат:" />
+                        <TextBox x:Name="txtRooms" />
 
-                        <!-- Количество комнат -->
-                        <TextBlock Text="Количество комнат:" Width="150" VerticalAlignment="Center"/>
-                        <TextBox Name="txtRooms" Width="200" />
+                        <TextBlock Text="Общая площадь:" />
+                        <TextBox x:Name="txtArea" />
 
-                        <!-- Площадь (м²) -->
-                        <TextBlock Text="Площадь (м²):" Width="150" VerticalAlignment="Center"/>
-                        <TextBox Name="txtArea" Width="200" />
+                        <TextBlock Text="Жилая площадь:" />
+                        <TextBox x:Name="txtLivingArea" />
 
-                        <!-- Жилая площадь -->
-                        <TextBlock Text="Жилая площадь (м²):" Width="150" VerticalAlignment="Center"/>
-                        <TextBox Name="txtLivingArea" Width="200" />
+                        <TextBlock Text="Площадь кухни:" />
+                        <TextBox x:Name="txtKitchenArea" />
 
-                        <!-- Площадь кухни -->
-                        <TextBlock Text="Площадь кухни (м²):" Width="150" VerticalAlignment="Center"/>
-                        <TextBox Name="txtKitchenArea" Width="200" />
+                        <TextBlock Text="Этаж:" />
+                        <TextBox x:Name="txtFloor" />
 
-                        <!-- Этаж -->
-                        <TextBlock Text="Этаж:" Width="150" VerticalAlignment="Center"/>
-                        <TextBox Name="txtFloor" Width="200" />
+                        <TextBlock Text="Всего этажей в доме:" />
+                        <TextBox x:Name="txtTotalFloors" />
+                        <TextBlock Text="Станция метро:" Margin="0,10,0,0" />
+                        <ComboBox x:Name="comboMetroStation" SelectionChanged="cmbMetroStations_SelectionChanged"/>
+                        <TextBlock Text="Широта" />
+                        <TextBlock x:Name="txtLatitude" />
 
-                        <!-- Всего этажей -->
-                        <TextBlock Text="Всего этажей:" Width="150" VerticalAlignment="Center"/>
-                        <TextBox Name="txtTotalFloors" Width="200" />
+                        <TextBlock Text="Долгота" />
+                        <TextBlock x:Name="txtLongitude" />
 
-                        <!-- Выбор станции метро -->
-                        <TextBlock Text="Станция метро:" Width="150" VerticalAlignment="Center"/>
-                        <ComboBox Name="cmbMetroStations" Width="200" SelectionChanged="cmbMetroStations_SelectionChanged"/>
+                        <!-- Регион -->
+                        <TextBlock Text="Регион:" Margin="20,10,0,0" FontWeight="Bold" />
+                        <CheckBox Margin="20,10,0,0" x:Name="chkRegionMoscow" Content="Москва" />
+                        <CheckBox Margin="20,10,0,0" x:Name="chkRegionMoscowRegion" Content="Московская область" />
 
-                        <TextBlock Text="Широта:" Width="150" VerticalAlignment="Center"/>
-                        <TextBlock Name="txtLatitude" Width="200" FontWeight="Bold" Foreground="DarkBlue"/>
+                        <!-- Тип квартиры -->
+                        <TextBlock Margin="20,10,0,0" Text="Тип квартиры:"  FontWeight="Bold" />
+                        <CheckBox Margin="20,10,0,0" x:Name="chkNewBuilding" Content="Новостройка" />
+                        <CheckBox Margin="20,10,0,0" x:Name="chkSecondary" Content="Вторичка" />
 
-                        <TextBlock Text="Долгота:" Width="150" VerticalAlignment="Center"/>
-                        <TextBlock Name="txtLongitude" Width="200" FontWeight="Bold" Foreground="DarkBlue"/>
+                        <!-- Ремонт -->
+                        <TextBlock Margin="20,10,0,0" Text="Ремонт:" FontWeight="Bold" />
+                        <CheckBox Margin="20,10,0,0" x:Name="chkRenovationCosmetic" Content="Косметический" />
+                        <CheckBox Margin="20,10,0,0" x:Name="chkRenovationDesigner" Content="Дизайнерский" />
+                        <CheckBox Margin="20,10,0,0" x:Name="chkRenovationEuro" Content="Евроремонт" />
+                        <CheckBox Margin="20,10,0,0" x:Name="chkRenovationNone" Content="Без ремонта" />
 
-                        <!-- Кнопка для предсказания -->
-                        <Button Content="Прогноз цены" Width="200" Height="40" Foreground="White" Click="btnPredict_Click" Margin="0,10,0,0" Background="#FF6F6B6B"/>
+                        <!-- Кнопка -->
+                        <Button Margin="20,10,0,0"  x:Name="btnPredict" Content="Прогноз цены"  Click="btnPredict_Click" />
 
-                        <!-- Поле для отображения результата -->
-                        <TextBlock Name="txtResult" FontSize="16" FontWeight="Bold" Foreground="Blue" Margin="0,10,0,0" Height="26" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                        <!-- Вывод результата -->
+                        <TextBlock Text="Цена сейчас:" FontWeight="Bold" Margin="20,10,0,0" />
+                        <TextBlock x:Name="txtResult" FontSize="14" Foreground="DarkGreen" Margin="20,0,0,0" Height="22" Width="135" />
 
+                        <TextBlock Text="Цена через 5 лет:" Margin="20,10,0,0" />
+                        <TextBlock x:Name="txtPriceIn5Years" FontSize="14" Margin="20,0,0,0" Width="135" Height="22" />
+
+                        <TextBlock Text="Цена через 10 лет:" Margin="20,0,0,0" />
+                        <TextBlock x:Name="txtPriceIn10Years" FontSize="14" Margin="24,0,0,0" Width="135" Height="22" />
                     </WrapPanel>
-
                 </StackPanel>
             </TabItem>
 

@@ -75,7 +75,7 @@ namespace RealEstatePriceForecast
                         float longitude = float.Parse(lonStr, CultureInfo.InvariantCulture);
 
                         // Добавляем станцию в ComboBox
-                        cmbMetroStations.Items.Add(new MetroStation(name, latitude, longitude));
+                        comboMetroStation.Items.Add(new MetroStation(name, latitude, longitude));
                     }
                     catch (Exception ex) when (ex is FormatException || ex is IndexOutOfRangeException)
                     {
@@ -90,7 +90,7 @@ namespace RealEstatePriceForecast
         // Обновляем широту и долготу в отдельных TextBlock при выборе станции
         private void cmbMetroStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (cmbMetroStations.SelectedItem is MetroStation station)
+            if (comboMetroStation.SelectedItem is MetroStation station)
             {
                 txtLatitude.Text = station.Latitude.ToString("F6");
                 txtLongitude.Text = station.Longitude.ToString("F6");
@@ -115,44 +115,78 @@ namespace RealEstatePriceForecast
 
         private void btnPredict_Click(object sender, RoutedEventArgs e)
         {
-            // Проверяем ввод и преобразуем строки в float
-            if (!float.TryParse(txtMinutesToMetro.Text, out float minutesToMetro) ||
-                !float.TryParse(txtRooms.Text, out float rooms) ||
-                !float.TryParse(txtArea.Text, out float area) ||
-                !float.TryParse(txtLivingArea.Text, out float livingArea) ||
-                !float.TryParse(txtKitchenArea.Text, out float kitchenArea) ||
-                !float.TryParse(txtFloor.Text, out float floor) ||
-                !float.TryParse(txtTotalFloors.Text, out float totalFloors) ||
-                !float.TryParse(txtLatitude.Text, out float latitude) ||
-                !float.TryParse(txtLongitude.Text, out float longitude))
+            try
             {
-                MessageBox.Show("Некорректный ввод! Проверьте, что все поля содержат числа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                // Числовые параметры
+                if (!float.TryParse(txtMinutesToMetro.Text, out float minutesToMetro) ||
+                    !float.TryParse(txtRooms.Text, out float rooms) ||
+                    !float.TryParse(txtArea.Text, out float area) ||
+                    !float.TryParse(txtLivingArea.Text, out float livingArea) ||
+                    !float.TryParse(txtKitchenArea.Text, out float kitchenArea) ||
+                    !float.TryParse(txtFloor.Text, out float floor) ||
+                    !float.TryParse(txtTotalFloors.Text, out float totalFloors) ||
+                    !float.TryParse(txtLatitude.Text, out float latitude) ||
+                    !float.TryParse(txtLongitude.Text, out float longitude))
+                {
+                    MessageBox.Show("Некорректный ввод! Убедитесь, что все поля содержат числа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Булевы параметры (предполагаем, что они представлены как CheckBox)
+                float regionMoscow = chkRegionMoscow.IsChecked == true ? 1 : 0;
+                float regionMoscowRegion = chkRegionMoscowRegion.IsChecked == true ? 1 : 0;
+                float aptNew = chkNewBuilding.IsChecked == true ? 1 : 0;
+                float aptSecondary = chkSecondary.IsChecked == true ? 1 : 0;
+                float renoCosmetic = chkRenovationCosmetic.IsChecked == true ? 1 : 0;
+                float renoDesigner = chkRenovationDesigner.IsChecked == true ? 1 : 0;
+                float renoEuro = chkRenovationEuro.IsChecked == true ? 1 : 0;
+                float renoNone = chkRenovationNone.IsChecked == true ? 1 : 0;
+
+                // Проверка логики: один регион, один тип квартиры, одна отделка
+                if (regionMoscow + regionMoscowRegion != 1 ||
+                    aptNew + aptSecondary != 1 ||
+                    renoCosmetic + renoDesigner + renoEuro + renoNone != 1)
+                {
+                    MessageBox.Show("Выберите корректное количество опций: один регион, один тип квартиры, один тип ремонта.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Формируем массив входных данных
+                float[] input = {
+            minutesToMetro, rooms, area, livingArea, kitchenArea, floor, totalFloors,
+            regionMoscow, regionMoscowRegion,
+            aptNew, aptSecondary,
+            renoCosmetic, renoDesigner, renoEuro, renoNone,
+            latitude, longitude
+        };
+
+                // Вызываем предсказание
+                float predictedPrice = PredictPrice(input);
+
+                if (predictedPrice > 0)
+                {
+                    txtResult.Text = $"Цена сегодня: {predictedPrice:0,0} руб.";
+                }
+                else
+                {
+                    txtResult.Text = "Ошибка при предсказании.";
+                    return;
+                }
+
+                // Прогноз на 5 и 10 лет
+                double growthRate = 0.05;
+                double priceIn5Years = predictedPrice * Math.Pow(1 + growthRate, 5);
+                double priceIn10Years = predictedPrice * Math.Pow(1 + growthRate, 10);
+
+                txtPriceIn5Years.Text = $"{priceIn5Years:N0} руб.";
+                txtPriceIn10Years.Text = $"{priceIn10Years:N0} руб.";
             }
-
-            // Проверяем, что значения в допустимых пределах
-            if (area <= 0 || rooms <= 0 || floor <= 0 || minutesToMetro < 0)
+            catch (Exception ex)
             {
-                MessageBox.Show("Некорректные значения! Проверьте вводимые данные.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            // Формируем массив входных данных
-            float[] input = { minutesToMetro, rooms, area, livingArea, kitchenArea, floor, totalFloors, latitude, longitude };
-
-            // Вызываем предсказание через ONNX
-            float predictedPrice = PredictPrice(input);
-
-            // Проверяем, что предсказание прошло успешно
-            if (predictedPrice > 0)
-            {
-                txtResult.Text = $"Прогнозируемая цена: {predictedPrice:0,0} руб.";
-            }
-            else
-            {
-                txtResult.Text = "Ошибка при предсказании.";
+                MessageBox.Show($"Ошибка: {ex.Message}", "Исключение", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         private float PredictPrice(float[] input)
         {
@@ -319,7 +353,6 @@ namespace RealEstatePriceForecast
     public class PricePredictor
     {
         private readonly InferenceSession _session;
-        private readonly float[] _meanValues = { 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 }; // Средние значения
 
         public PricePredictor(string modelPath)
         {
@@ -330,30 +363,31 @@ namespace RealEstatePriceForecast
         {
             try
             {
-                int requiredLength = 17;
-
-                // Если признаков меньше 17, дополняем средними значениями
-                float[] fullInput = inputFeatures.Concat(_meanValues.Skip(inputFeatures.Length).Take(requiredLength - inputFeatures.Length)).ToArray();
+                if (inputFeatures.Length != 17)
+                {
+                    throw new ArgumentException("Модель ожидает 17 входных параметров.");
+                }
 
                 // Создаём тензор
-                var inputTensor = new DenseTensor<float>(fullInput, new int[] { 1, fullInput.Length });
+                var inputTensor = new DenseTensor<float>(inputFeatures, new int[] { 1, inputFeatures.Length });
 
-                var inputs = new NamedOnnxValue[]
-                {
+                var inputs = new List<NamedOnnxValue>
+            {
                 NamedOnnxValue.CreateFromTensor("input", inputTensor)
-                };
+            };
 
                 using (var results = _session.Run(inputs))
                 {
                     var output = results.First().AsEnumerable<float>().ToArray();
-                    return output[0]; // Возвращаем исходное значение без преобразования
+                    return output[0]; // Возвращаем предсказанную цену
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка при предсказании: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return -1;
             }
-            return -1;
         }
     }
+
 }
