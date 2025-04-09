@@ -40,13 +40,13 @@ namespace RealEstatePriceForecast
             string appName = Process.GetCurrentProcess().ProcessName + ".exe";
             using (var key = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BROWSER_EMULATION"))
             {
-                key.SetValue(appName, 11001, RegistryValueKind.DWord); // Используем режим IE11
+                key.SetValue(appName, 11001, RegistryValueKind.DWord); 
             }
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            PropertyPriceSlider.Value = 3000000; // Устанавливаем стартовые значения
+            PropertyPriceSlider.Value = 3000000; 
             DownPaymentSlider.Value = 600000;
             DownPaymentSlider.Maximum = PropertyPriceSlider.Value;
             LoanTermSlider.Value = 20;
@@ -56,29 +56,23 @@ namespace RealEstatePriceForecast
 
             foreach (string line in File.ReadAllLines("metro_converted.csv"))
             {
-                // Разбиваем строку по точке с запятой
                 string[] parts = line.Split(';');
 
-                // Проверяем, что строка содержит 3 части (название, широта, долгота)
                 if (parts.Length >= 3)
                 {
                     try
                     {
-                        // Очищаем данные от лишних пробелов и кавычек
                         string name = parts[0].Trim().Trim('"');
                         string latStr = parts[1].Trim().Trim('"');
                         string lonStr = parts[2].Trim().Trim('"');
 
-                        // Парсим координаты с учетом культуры (для правильного чтения float)
                         float latitude = float.Parse(latStr, CultureInfo.InvariantCulture);
                         float longitude = float.Parse(lonStr, CultureInfo.InvariantCulture);
 
-                        // Добавляем станцию в ComboBox
                         comboMetroStation.Items.Add(new MetroStation(name, latitude, longitude));
                     }
                     catch (Exception ex) when (ex is FormatException || ex is IndexOutOfRangeException)
                     {
-                        // Логируем ошибку без прерывания работы
                         Debug.WriteLine($"Ошибка в строке: {line}\n{ex.Message}");
                     }
                 }
@@ -86,7 +80,6 @@ namespace RealEstatePriceForecast
 
         }
 
-        // Обновляем широту и долготу в отдельных TextBlock при выборе станции
         private void cmbMetroStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (comboMetroStation.SelectedItem is MetroStation station)
@@ -95,7 +88,6 @@ namespace RealEstatePriceForecast
                 txtLongitude.Text = station.Longitude.ToString("F6");
             }
         }
-        // Класс для хранения информации о станциях метро
         public class MetroStation
         {
             public string Name { get; }
@@ -109,7 +101,7 @@ namespace RealEstatePriceForecast
                 Longitude = lon;
             }
 
-            public override string ToString() => Name; // Отображение в ComboBox
+            public override string ToString() => Name; 
         }
 
         private void btnPredict_Click(object sender, RoutedEventArgs e)
@@ -131,9 +123,27 @@ namespace RealEstatePriceForecast
                     return;
                 }
 
+                if (floor > totalFloors)
+                {
+                    MessageBox.Show("Этаж не может быть больше количества этажей в доме.", "Ошибка логики", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (kitchenArea > area || livingArea > area)
+                {
+                    MessageBox.Show("Площадь кухни или жилая площадь не могут быть больше общей площади.", "Ошибка логики", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (area <= 0 || livingArea <= 0 || kitchenArea <= 0)
+                {
+                    MessageBox.Show("Площадь не может быть нулевой или отрицательной.", "Ошибка логики", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 // Булевы параметры (предполагаем, что они представлены как CheckBox)
-                float regionMoscow = chkRegionMoscow.IsChecked == true ? 1 : 0;
-                float regionMoscowRegion = chkRegionMoscowRegion.IsChecked == true ? 1 : 0;
+                float regionMoscow = 1;
+                float regionMoscowRegion = 0;
                 float aptNew = chkNewBuilding.IsChecked == true ? 1 : 0;
                 float aptSecondary = chkSecondary.IsChecked == true ? 1 : 0;
                 float renoCosmetic = chkRenovationCosmetic.IsChecked == true ? 1 : 0;
@@ -141,9 +151,8 @@ namespace RealEstatePriceForecast
                 float renoEuro = chkRenovationEuro.IsChecked == true ? 1 : 0;
                 float renoNone = chkRenovationNone.IsChecked == true ? 1 : 0;
 
-                // Проверка логики: один регион, один тип квартиры, одна отделка
-                if (regionMoscow + regionMoscowRegion != 1 ||
-                    aptNew + aptSecondary != 1 ||
+                // Проверка логики: один тип квартиры, одна отделка
+                if (aptNew + aptSecondary != 1 ||
                     renoCosmetic + renoDesigner + renoEuro + renoNone != 1)
                 {
                     MessageBox.Show("Выберите корректное количество опций: один регион, один тип квартиры, один тип ремонта.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -152,11 +161,11 @@ namespace RealEstatePriceForecast
 
                 // Формируем массив входных данных
                 float[] input = {
-            minutesToMetro, rooms, area, livingArea, kitchenArea, floor, totalFloors,
-            regionMoscow, regionMoscowRegion,
-            aptNew, aptSecondary,
-            renoCosmetic, renoDesigner, renoEuro, renoNone,
-            latitude, longitude
+                minutesToMetro, rooms, area, livingArea, kitchenArea, floor, totalFloors,
+                regionMoscow, regionMoscowRegion,
+                aptNew, aptSecondary,
+                renoCosmetic, renoDesigner, renoEuro, renoNone,
+                latitude, longitude
         };
 
                 // Вызываем предсказание
@@ -164,7 +173,7 @@ namespace RealEstatePriceForecast
 
                 if (predictedPrice > 0)
                 {
-                    txtResult.Text = $"Цена сегодня: {predictedPrice:0,0} руб.";
+                    txtResult.Text = $"{predictedPrice:0,0} руб.";
                 }
                 else
                 {
@@ -191,7 +200,7 @@ namespace RealEstatePriceForecast
             try
             {
                 // Используем ваш код для предсказания
-                var predictor = new PricePredictor("lightgbm_exp.onnx");
+                var predictor = new PricePredictor("price_prediction_optimized.onnx");
                 float predictedPrice = predictor.Predict(input);
 
                 return predictedPrice;
@@ -481,6 +490,11 @@ namespace RealEstatePriceForecast
 
             OSMMapBrowser.NavigateToString(htmlContent);
         }
+
+        private void chkNewBuilding_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
     public class PricePredictor
@@ -512,7 +526,7 @@ namespace RealEstatePriceForecast
                 using (var results = _session.Run(inputs))
                 {
                     var output = results.First().AsEnumerable<float>().ToArray();
-                    return output[0]; // Возвращаем предсказанную цену
+                    return (float)Math.Exp(output[0])/10; // Возвращаем предсказанную цену
                 }
             }
             catch (Exception ex)
