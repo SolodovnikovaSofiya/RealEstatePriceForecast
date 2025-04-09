@@ -27,12 +27,14 @@ namespace RealEstatePriceForecast
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    { 
+    {
+        private PredictionsEntities _context = new PredictionsEntities();
         public MainWindow()
         {
             SetWebBrowserFeatureControl();
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
+            comboMetroStation.ItemsSource = _context.MetroStations.ToList();
         }
 
         private void SetWebBrowserFeatureControl()
@@ -54,39 +56,46 @@ namespace RealEstatePriceForecast
             UpdateCalculations();
 
 
-            foreach (string line in File.ReadAllLines("metro_converted.csv"))
-            {
-                string[] parts = line.Split(';');
+            //foreach (string line in File.ReadAllLines("metro_converted.csv"))
+            //{
+            //    string[] parts = line.Split(';');
 
-                if (parts.Length >= 3)
-                {
-                    try
-                    {
-                        string name = parts[0].Trim().Trim('"');
-                        string latStr = parts[1].Trim().Trim('"');
-                        string lonStr = parts[2].Trim().Trim('"');
+            //    if (parts.Length >= 3)
+            //    {
+            //        try
+            //        {
+            //            string name = parts[0].Trim().Trim('"');
+            //            string latStr = parts[1].Trim().Trim('"');
+            //            string lonStr = parts[2].Trim().Trim('"');
 
-                        float latitude = float.Parse(latStr, CultureInfo.InvariantCulture);
-                        float longitude = float.Parse(lonStr, CultureInfo.InvariantCulture);
+            //            float latitude = float.Parse(latStr, CultureInfo.InvariantCulture);
+            //            float longitude = float.Parse(lonStr, CultureInfo.InvariantCulture);
 
-                        comboMetroStation.Items.Add(new MetroStation(name, latitude, longitude));
-                    }
-                    catch (Exception ex) when (ex is FormatException || ex is IndexOutOfRangeException)
-                    {
-                        Debug.WriteLine($"Ошибка в строке: {line}\n{ex.Message}");
-                    }
-                }
-            }
+            //            comboMetroStation.Items.Add(new MetroStation(name, latitude, longitude));
+            //        }
+            //        catch (Exception ex) when (ex is FormatException || ex is IndexOutOfRangeException)
+            //        {
+            //            Debug.WriteLine($"Ошибка в строке: {line}\n{ex.Message}");
+            //        }
+            //    }
+            //}
 
         }
 
         private void cmbMetroStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (comboMetroStation.SelectedItem is MetroStation station)
-            {
-                txtLatitude.Text = station.Latitude.ToString("F6");
-                txtLongitude.Text = station.Longitude.ToString("F6");
-            }
+            if (comboMetroStation.SelectedItem == null) return;
+
+            var selectedStation = (MetroStations)comboMetroStation.SelectedItem;
+
+            txtLatitude.Text = selectedStation.Latitude.ToString("F6");
+            txtLongitude.Text = selectedStation.Longitude.ToString("F6");
+
+            //if (comboMetroStation.SelectedItem is MetroStation station)
+            //{
+            //    txtLatitude.Text = station.Latitude.ToString("F6");
+            //    txtLongitude.Text = station.Longitude.ToString("F6");
+            //}
         }
         public class MetroStation
         {
@@ -141,6 +150,14 @@ namespace RealEstatePriceForecast
                     return;
                 }
 
+                if (comboMetroStation.SelectedItem == null)
+                {
+                    MessageBox.Show("Выберите станцию метро!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var selectedMetro = (MetroStations)comboMetroStation.SelectedItem;
+
                 // Булевы параметры (предполагаем, что они представлены как CheckBox)
                 float regionMoscow = 1;
                 float regionMoscowRegion = 0;
@@ -188,12 +205,59 @@ namespace RealEstatePriceForecast
 
                 txtPriceIn5Years.Text = $"{priceIn5Years:N0} руб.";
                 txtPriceIn10Years.Text = $"{priceIn10Years:N0} руб.";
+
+                int? apartmentTypeId = _context.ApartmentTypes
+                .Where(at =>
+                    (chkNewBuilding.IsChecked == true && at.Name == "Новостройка") ||
+                    (chkSecondary.IsChecked == true && at.Name == "Вторичка"))
+                .Select(at => (int?)at.ApartmentTypeID) 
+                .FirstOrDefault();
+
+                int? renovationTypeId = _context.Renovations
+                .Where(at =>
+                    (chkRenovationCosmetic.IsChecked == true && at.Name == "Косметический") ||
+                    (chkRenovationDesigner.IsChecked == true && at.Name == "Дизайнерский") ||
+                    (chkRenovationEuro.IsChecked == true && at.Name == "Евроремонт") ||
+                    (chkRenovationNone.IsChecked == true && at.Name == "Без ремонта"))
+                .Select(at => (int?)at.RenovationID) 
+                .FirstOrDefault();
+
+                var realEstate = new RealEstate
+                {
+                    Rooms = (int)rooms,
+                    TotalArea = (decimal)area,
+                    LivingArea = (decimal)livingArea,
+                    KitchenArea = (decimal)kitchenArea,
+                    Floor = (int)floor,
+                    TotalFloors = (int)totalFloors,
+                    MetroStationID = selectedMetro.MetroStationID,
+                    ApartmentTypeID = (int)apartmentTypeId,
+                    RenovationID = (int)renovationTypeId
+                };
+
+                _context.RealEstate.Add(realEstate);
+                _context.SaveChanges();
+
+                // Записываем предсказание
+                var pricePrediction = new PricePredictions
+                {
+                    RealEstateID = realEstate.RealEstateID,
+                    CurrentPrice = (decimal)predictedPrice,
+                    PriceIn5Years = (decimal)priceIn5Years,
+                    PriceIn10Years = (decimal)priceIn10Years
+                };
+
+                _context.PricePredictions.Add(pricePrediction);
+                _context.SaveChanges();
+
+                MessageBox.Show("Данные успешно сохранены в базе!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка: {ex.Message}", "Исключение", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         private float PredictPrice(float[] input)
         {
