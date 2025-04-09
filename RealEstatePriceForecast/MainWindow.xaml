@@ -11,7 +11,6 @@
             <TabItem Header="Поиск недвижимости" Background="#FF0D5789" Margin="-2,-2,-2,-3">
                 <StackPanel Background="#FF0D5789" Height="548">
                     <WrapPanel Margin="20" Width="680" HorizontalAlignment="Center" Height="416" Orientation="Vertical">
-                        <!-- Числовые поля -->
                         <TextBlock Text="Минут до метро:" FontSize="14" FontFamily="Microsoft YaHei UI" Foreground="#FF88BEE2" />
                         <TextBox x:Name="txtMinutesToMetro" />
 
@@ -39,22 +38,19 @@
 
                         <TextBlock Text="Долгота" Margin="20,5,5,5" />
                         <TextBlock x:Name="txtLongitude" Margin="20,5,5,5" FontWeight="Normal" />
-                        <!-- Тип квартиры -->
+
                         <TextBlock Margin="20,5,5,5" Text="Тип квартиры:"  FontWeight="Bold" />
                         <CheckBox x:Name="chkNewBuilding" Content="Новостройка" Checked="chkNewBuilding_Checked" FontSize="14" />
                         <CheckBox Margin="20,10,10,0" x:Name="chkSecondary" Content="Вторичка" />
 
-                        <!-- Ремонт -->
                         <TextBlock Margin="20,10,0,0" Text="Ремонт:" FontWeight="Bold" />
                         <CheckBox Margin="20,10,0,0" x:Name="chkRenovationCosmetic" Content="Косметический" />
                         <CheckBox Margin="20,10,0,0" x:Name="chkRenovationDesigner" Content="Дизайнерский" />
                         <CheckBox Margin="20,10,0,0" x:Name="chkRenovationEuro" Content="Евроремонт" />
                         <CheckBox Margin="20,10,0,0" x:Name="chkRenovationNone" Content="Без ремонта" />
 
-                        <!-- Кнопка -->
                         <Button Margin="20,10,0,0"  x:Name="btnPredict" Content="Прогноз цены"  Click="btnPredict_Click" Background="White" Foreground="#FF1B262C" />
 
-                        <!-- Вывод результата -->
                         <TextBlock Text="Цена сейчас:" FontWeight="Bold" Margin="20,10,0,0" />
                         <TextBlock x:Name="txtResult" Height="22" Width="266" Margin="20,5,5,5" FontWeight="Normal" />
 
@@ -67,32 +63,25 @@
                 </StackPanel>
             </TabItem>
 
-
-
             <TabItem Header="Калькулятор ипотеки" Background="#FF0D5789" Margin="-2,-2,-2,-3">
                 <StackPanel Background="#FF0D5789" Height="549" Margin="0,0,-4,0">
 
-                    <!-- Стоимость недвижимости -->
                     <TextBlock Text="Стоимость недвижимости" FontWeight="Bold"/>
                     <TextBox x:Name="PropertyPriceTextBox" TextChanged="PropertyPriceTextBox_TextChanged"/>
                     <Slider x:Name="PropertyPriceSlider" Minimum="1000000" Maximum="50000000" TickFrequency="100000" IsSnapToTickEnabled="True" ValueChanged="PropertyPriceSlider_ValueChanged"/>
 
-                    <!-- Первоначальный взнос -->
                     <TextBlock Text="Первоначальный взнос" FontWeight="Bold"/>
                     <TextBox x:Name="DownPaymentTextBox" TextChanged="DownPaymentTextBox_TextChanged"/>
                     <Slider x:Name="DownPaymentSlider" Minimum="0" Maximum="5000000" TickFrequency="50000" IsSnapToTickEnabled="True" ValueChanged="DownPaymentSlider_ValueChanged"/>
 
-                    <!-- Срок кредита -->
                     <TextBlock Text="Срок кредита (лет)" FontWeight="Bold"/>
                     <TextBox x:Name="LoanTermTextBox" TextChanged="LoanTermTextBox_TextChanged"/>
                     <Slider x:Name="LoanTermSlider" Minimum="5" Maximum="30" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="LoanTermSlider_ValueChanged"/>
 
-                    <!-- Процентная ставка -->
                     <TextBlock Text="Процентная ставка (%)" FontWeight="Bold"/>
                     <TextBox x:Name="InterestRateTextBox" TextChanged="InterestRateTextBox_TextChanged"/>
                     <Slider x:Name="InterestRateSlider" Minimum="2" Maximum="30" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="InterestRateSlider_ValueChanged"/>
 
-                    <!-- Результаты расчета -->
                     <TextBlock Text="Результаты:" FontWeight="Bold" Margin="0,10,0,0"/>
                     <TextBlock x:Name="MonthlyPaymentTextBlock"/>
                     <TextBlock x:Name="LoanAmountTextBlock"/>
@@ -102,6 +91,7 @@
 
                 </StackPanel>
             </TabItem>
+            
             <TabItem Header="Карта" Background="#FF0D5789" Margin="-2,-2,-2,-3">
                 <Grid>
                     <WebBrowser x:Name="OSMMapBrowser" Loaded="OSMMapBrowser_Loaded" OpacityMask="#FF0F4C75"/>

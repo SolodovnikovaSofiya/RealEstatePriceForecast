@@ -54,32 +54,6 @@ namespace RealEstatePriceForecast
             LoanTermSlider.Value = 20;
             InterestRateSlider.Value = 8;
             UpdateCalculations();
-
-
-            //foreach (string line in File.ReadAllLines("metro_converted.csv"))
-            //{
-            //    string[] parts = line.Split(';');
-
-            //    if (parts.Length >= 3)
-            //    {
-            //        try
-            //        {
-            //            string name = parts[0].Trim().Trim('"');
-            //            string latStr = parts[1].Trim().Trim('"');
-            //            string lonStr = parts[2].Trim().Trim('"');
-
-            //            float latitude = float.Parse(latStr, CultureInfo.InvariantCulture);
-            //            float longitude = float.Parse(lonStr, CultureInfo.InvariantCulture);
-
-            //            comboMetroStation.Items.Add(new MetroStation(name, latitude, longitude));
-            //        }
-            //        catch (Exception ex) when (ex is FormatException || ex is IndexOutOfRangeException)
-            //        {
-            //            Debug.WriteLine($"Ошибка в строке: {line}\n{ex.Message}");
-            //        }
-            //    }
-            //}
-
         }
 
         private void cmbMetroStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -90,12 +64,6 @@ namespace RealEstatePriceForecast
 
             txtLatitude.Text = selectedStation.Latitude.ToString("F6");
             txtLongitude.Text = selectedStation.Longitude.ToString("F6");
-
-            //if (comboMetroStation.SelectedItem is MetroStation station)
-            //{
-            //    txtLatitude.Text = station.Latitude.ToString("F6");
-            //    txtLongitude.Text = station.Longitude.ToString("F6");
-            //}
         }
         public class MetroStation
         {
@@ -238,7 +206,6 @@ namespace RealEstatePriceForecast
                 _context.RealEstate.Add(realEstate);
                 _context.SaveChanges();
 
-                // Записываем предсказание
                 var pricePrediction = new PricePredictions
                 {
                     RealEstateID = realEstate.RealEstateID,
@@ -257,7 +224,6 @@ namespace RealEstatePriceForecast
                 MessageBox.Show($"Ошибка: {ex.Message}", "Исключение", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
 
         private float PredictPrice(float[] input)
         {
@@ -324,7 +290,6 @@ namespace RealEstatePriceForecast
             }
         }
 
-        // Связываем слайдеры и текстовые поля
         private void PropertyPriceSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             PropertyPriceTextBox.Text = PropertyPriceSlider.Value.ToString("N0");
