@@ -65,6 +65,7 @@ namespace RealEstatePriceForecast
             txtLatitude.Text = selectedStation.Latitude.ToString("F6");
             txtLongitude.Text = selectedStation.Longitude.ToString("F6");
         }
+        
         public class MetroStation
         {
             public string Name { get; }
@@ -85,7 +86,6 @@ namespace RealEstatePriceForecast
         {
             try
             {
-                // Числовые параметры
                 if (!float.TryParse(txtMinutesToMetro.Text, out float minutesToMetro) ||
                     !float.TryParse(txtRooms.Text, out float rooms) ||
                     !float.TryParse(txtArea.Text, out float area) ||
@@ -118,15 +118,8 @@ namespace RealEstatePriceForecast
                     return;
                 }
 
-                if (comboMetroStation.SelectedItem == null)
-                {
-                    MessageBox.Show("Выберите станцию метро!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
                 var selectedMetro = (MetroStations)comboMetroStation.SelectedItem;
 
-                // Булевы параметры (предполагаем, что они представлены как CheckBox)
                 float regionMoscow = 1;
                 float regionMoscowRegion = 0;
                 float aptNew = chkNewBuilding.IsChecked == true ? 1 : 0;
@@ -136,7 +129,6 @@ namespace RealEstatePriceForecast
                 float renoEuro = chkRenovationEuro.IsChecked == true ? 1 : 0;
                 float renoNone = chkRenovationNone.IsChecked == true ? 1 : 0;
 
-                // Проверка логики: один тип квартиры, одна отделка
                 if (aptNew + aptSecondary != 1 ||
                     renoCosmetic + renoDesigner + renoEuro + renoNone != 1)
                 {
@@ -151,9 +143,8 @@ namespace RealEstatePriceForecast
                 aptNew, aptSecondary,
                 renoCosmetic, renoDesigner, renoEuro, renoNone,
                 latitude, longitude
-        };
+                };
 
-                // Вызываем предсказание
                 float predictedPrice = PredictPrice(input);
 
                 if (predictedPrice > 0)
@@ -519,11 +510,6 @@ namespace RealEstatePriceForecast
 
             OSMMapBrowser.NavigateToString(htmlContent);
         }
-
-        private void chkNewBuilding_Checked(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 
     public class PricePredictor
@@ -544,7 +530,6 @@ namespace RealEstatePriceForecast
                     throw new ArgumentException("Модель ожидает 17 входных параметров.");
                 }
 
-                // Создаём тензор
                 var inputTensor = new DenseTensor<float>(inputFeatures, new int[] { 1, inputFeatures.Length });
 
                 var inputs = new List<NamedOnnxValue>
@@ -555,7 +540,7 @@ namespace RealEstatePriceForecast
                 using (var results = _session.Run(inputs))
                 {
                     var output = results.First().AsEnumerable<float>().ToArray();
-                    return (float)Math.Exp(output[0])/10; // Возвращаем предсказанную цену
+                    return (float)Math.Exp(output[0])/10; 
                 }
             }
             catch (Exception ex)
