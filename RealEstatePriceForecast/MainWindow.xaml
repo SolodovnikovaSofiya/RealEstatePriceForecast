@@ -5,98 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RealEstatePriceForecast"
         mc:Ignorable="d"
-             Title="Прогнозирование цен на недвижимость" Height="600" Width="800" Background="#FF1B262C">
+             Title="Прогнозирование цен на недвижимость" Height="750" Width="1000">
     <Grid>
-        <TabControl Background="#1b262c" BorderBrush="#FF1B262C">
-            <TabItem Header="Поиск недвижимости" Background="#FF0D5789" Margin="-2,-2,-2,-3">
-                <StackPanel Background="#FF0D5789" Height="548">
-                    <WrapPanel Margin="20" Width="680" HorizontalAlignment="Center" Height="416" Orientation="Vertical">
-                        <TextBlock Text="Минут до метро:" FontSize="14" FontFamily="Microsoft YaHei UI" Foreground="#FF88BEE2" />
-                        <TextBox x:Name="txtMinutesToMetro" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-                        <TextBlock Text="Количество комнат:" />
-                        <TextBox x:Name="txtRooms" />
+        <WrapPanel Grid.Row="0">
+            <Button x:Name="btnPredict" Content="Поиск недвижимости" Width="199" Click="btnPredict_Click_1"/>
+            <Button x:Name="btnCalculate" Content="Калькулятор ипотеки" Width="217" Click="btnCalculate_Click"/>
+            <Button x:Name="btnMap" Content="Карта" Click="btnMap_Click"/>
+        </WrapPanel>
+        
+        <Frame x:Name="MainFrame" Source="Pages/PredictPage.xaml" Grid.Row="1" NavigationUIVisibility="Hidden"/>
 
-                        <TextBlock Text="Общая площадь:" />
-                        <TextBox x:Name="txtArea" />
-
-                        <TextBlock Text="Жилая площадь:" />
-                        <TextBox x:Name="txtLivingArea" />
-
-                        <TextBlock Text="Площадь кухни:" />
-                        <TextBox x:Name="txtKitchenArea" />
-
-                        <TextBlock Text="Этаж:" />
-                        <TextBox x:Name="txtFloor" />
-
-                        <TextBlock Text="Всего этажей в доме:" />
-                        <TextBox x:Name="txtTotalFloors" />
-                        <TextBlock Text="Станция метро:" />
-                        <ComboBox x:Name="comboMetroStation" DisplayMemberPath="Name" SelectionChanged="cmbMetroStations_SelectionChanged"/>
-                        <TextBlock Text="Широта" Margin="20,5,5,5" />
-                        <TextBlock x:Name="txtLatitude" Margin="20,5,5,5" FontWeight="Normal" />
-
-                        <TextBlock Text="Долгота" Margin="20,5,5,5" />
-                        <TextBlock x:Name="txtLongitude" Margin="20,5,5,5" FontWeight="Normal" />
-
-                        <TextBlock Margin="20,5,5,5" Text="Тип квартиры:"  FontWeight="Bold" />
-                        <CheckBox x:Name="chkNewBuilding" Content="Новостройка" FontSize="14" />
-                        <CheckBox Margin="20,10,10,0" x:Name="chkSecondary" Content="Вторичка" />
-
-                        <TextBlock Margin="20,10,0,0" Text="Ремонт:" FontWeight="Bold" />
-                        <CheckBox Margin="20,10,0,0" x:Name="chkRenovationCosmetic" Content="Косметический" />
-                        <CheckBox Margin="20,10,0,0" x:Name="chkRenovationDesigner" Content="Дизайнерский" />
-                        <CheckBox Margin="20,10,0,0" x:Name="chkRenovationEuro" Content="Евроремонт" />
-                        <CheckBox Margin="20,10,0,0" x:Name="chkRenovationNone" Content="Без ремонта" />
-
-                        <Button Margin="20,10,0,0"  x:Name="btnPredict" Content="Прогноз цены"  Click="btnPredict_Click" Background="White" Foreground="#FF1B262C" />
-
-                        <TextBlock Text="Цена сейчас:" FontWeight="Bold" Margin="20,10,0,0" />
-                        <TextBlock x:Name="txtResult" Height="22" Width="266" Margin="20,5,5,5" FontWeight="Normal" />
-
-                        <TextBlock Text="Цена через 5 лет:" Margin="20,0,0,0" />
-                        <TextBlock x:Name="txtPriceIn5Years" Width="269" Height="22" Margin="20,5,5,5" FontWeight="Normal" />
-
-                        <TextBlock Text="Цена через 10 лет:" Margin="20,5,5,5" />
-                        <TextBlock x:Name="txtPriceIn10Years" Width="269" Height="22" Margin="20,5,5,5" FontWeight="Normal" />
-                    </WrapPanel>
-                </StackPanel>
-            </TabItem>
-
-            <TabItem Header="Калькулятор ипотеки" Background="#FF0D5789" Margin="-2,-2,-2,-3">
-                <StackPanel Background="#FF0D5789" Height="549" Margin="0,0,-4,0">
-
-                    <TextBlock Text="Стоимость недвижимости" FontWeight="Bold"/>
-                    <TextBox x:Name="PropertyPriceTextBox" TextChanged="PropertyPriceTextBox_TextChanged"/>
-                    <Slider x:Name="PropertyPriceSlider" Minimum="1000000" Maximum="50000000" TickFrequency="100000" IsSnapToTickEnabled="True" ValueChanged="PropertyPriceSlider_ValueChanged"/>
-
-                    <TextBlock Text="Первоначальный взнос" FontWeight="Bold"/>
-                    <TextBox x:Name="DownPaymentTextBox" TextChanged="DownPaymentTextBox_TextChanged"/>
-                    <Slider x:Name="DownPaymentSlider" Minimum="0" Maximum="5000000" TickFrequency="50000" IsSnapToTickEnabled="True" ValueChanged="DownPaymentSlider_ValueChanged"/>
-
-                    <TextBlock Text="Срок кредита (лет)" FontWeight="Bold"/>
-                    <TextBox x:Name="LoanTermTextBox" TextChanged="LoanTermTextBox_TextChanged"/>
-                    <Slider x:Name="LoanTermSlider" Minimum="5" Maximum="30" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="LoanTermSlider_ValueChanged"/>
-
-                    <TextBlock Text="Процентная ставка (%)" FontWeight="Bold"/>
-                    <TextBox x:Name="InterestRateTextBox" TextChanged="InterestRateTextBox_TextChanged"/>
-                    <Slider x:Name="InterestRateSlider" Minimum="2" Maximum="30" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="InterestRateSlider_ValueChanged"/>
-
-                    <TextBlock Text="Результаты:" FontWeight="Bold" Margin="0,10,0,0"/>
-                    <TextBlock x:Name="MonthlyPaymentTextBlock"/>
-                    <TextBlock x:Name="LoanAmountTextBlock"/>
-                    <TextBlock x:Name="TotalInterestTextBlock"/>
-                    <TextBlock x:Name="TotalPaymentTextBlock"/>
-                    <TextBlock x:Name="RequiredIncomeTextBlock"/>
-
-                </StackPanel>
-            </TabItem>
-            
-            <TabItem Header="Карта" Background="#FF0D5789" Margin="-2,-2,-2,-3">
-                <Grid>
-                    <WebBrowser x:Name="OSMMapBrowser" Loaded="OSMMapBrowser_Loaded" OpacityMask="#FF0F4C75"/>
-                </Grid>
-            </TabItem>
-        </TabControl>
     </Grid>
 </Window>

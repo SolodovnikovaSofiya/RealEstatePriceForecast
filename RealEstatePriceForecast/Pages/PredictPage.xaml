@@ -1,0 +1,72 @@
+﻿<Page x:Class="RealEstatePriceForecast.Pages.PredictPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:RealEstatePriceForecast.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="700" d:DesignWidth="1000"
+      Title="Поиск недвижимости">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" Orientation="Vertical">
+            <TextBlock Text="Минут до метро:"/>
+            <TextBox x:Name="txtMinutesToMetro" />
+
+            <TextBlock Text="Количество комнат:" />
+            <TextBox x:Name="txtRooms" />
+
+            <TextBlock Text="Общая площадь:" />
+            <TextBox x:Name="txtArea" />
+
+            <TextBlock Text="Жилая площадь:" />
+            <TextBox x:Name="txtLivingArea" />
+
+            <TextBlock Text="Площадь кухни:" />
+            <TextBox x:Name="txtKitchenArea" />
+
+            <TextBlock Text="Этаж:" />
+            <TextBox x:Name="txtFloor" />
+
+            <TextBlock Text="Всего этажей в доме:" />
+            <TextBox x:Name="txtTotalFloors" />
+
+            <TextBlock Text="Станция метро:" />
+            <ComboBox x:Name="comboMetroStation" DisplayMemberPath="Name" SelectionChanged="cmbMetroStations_SelectionChanged"/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Orientation="Vertical">
+            <TextBlock Text="Тип квартиры:"/>
+            <CheckBox x:Name="chkNewBuilding" Content="Новостройка"/>
+            <CheckBox x:Name="chkSecondary" Content="Вторичка" />
+
+            <TextBlock Text="Ремонт:"/>
+            <CheckBox x:Name="chkRenovationCosmetic" Content="Косметический" />
+            <CheckBox x:Name="chkRenovationDesigner" Content="Дизайнерский" />
+            <CheckBox x:Name="chkRenovationEuro" Content="Евроремонт" />
+            <CheckBox x:Name="chkRenovationNone" Content="Без ремонта" />
+
+            <Button x:Name="btnPredict" Content="Прогноз цены" Click="btnPredict_Click"/>
+
+            <TextBlock x:Name="txtLatitude" Margin="20,5,5,5"/>
+            <TextBlock x:Name="txtLongitude" Margin="20,5,5,5"/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="2" Orientation="Vertical">
+            <TextBlock Text="Цена сейчас:"/>
+            <TextBlock x:Name="txtResult"/>
+
+            <TextBlock Text="Цена через 5 лет:" />
+            <TextBlock x:Name="txtPriceIn5Years" />
+
+            <TextBlock Text="Цена через 10 лет:" />
+            <TextBlock x:Name="txtPriceIn10Years"  />
+        </StackPanel>
+    </Grid>
+</Page>
