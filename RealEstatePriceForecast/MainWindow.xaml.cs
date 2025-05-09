@@ -34,7 +34,7 @@ namespace RealEstatePriceForecast
             InitializeComponent();
         }
 
-        private void btnPredict_Click_1(object sender, RoutedEventArgs e)
+        private void btnPredict_Click(object sender, RoutedEventArgs e)
         {
             MainFrame.Navigate(new PredictPage());
         }

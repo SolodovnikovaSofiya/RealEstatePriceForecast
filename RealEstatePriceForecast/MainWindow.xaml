@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RealEstatePriceForecast"
         mc:Ignorable="d"
-             Title="Прогнозирование цен на недвижимость" Height="750" Width="1000">
+             Title="Прогнозирование цен на недвижимость" Height="650" Width="1000">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
@@ -13,9 +13,15 @@
         </Grid.RowDefinitions>
 
         <WrapPanel Grid.Row="0">
-            <Button x:Name="btnPredict" Content="Поиск недвижимости" Width="199" Click="btnPredict_Click_1"/>
-            <Button x:Name="btnCalculate" Content="Калькулятор ипотеки" Width="217" Click="btnCalculate_Click"/>
-            <Button x:Name="btnMap" Content="Карта" Click="btnMap_Click"/>
+            <Button x:Name="btnPredict" Click="btnPredict_Click">
+               <TextBlock Text="Поиск недвижимости" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Button>
+            <Button x:Name="btnCalculate" Click="btnCalculate_Click">
+                <TextBlock Text="Калькулятор ипотеки" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Button>
+            <Button x:Name="btnMap"  Click="btnMap_Click">
+                <TextBlock Text="Карта" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Button>
         </WrapPanel>
         
         <Frame x:Name="MainFrame" Source="Pages/PredictPage.xaml" Grid.Row="1" NavigationUIVisibility="Hidden"/>

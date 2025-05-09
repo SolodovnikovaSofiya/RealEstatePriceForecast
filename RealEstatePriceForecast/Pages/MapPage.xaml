@@ -5,10 +5,16 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:RealEstatePriceForecast.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="700" d:DesignWidth="1000"
+      d:DesignHeight="550" d:DesignWidth="1000"
       Title="Карта">
 
     <Grid>
-        <WebBrowser x:Name="OSMMapBrowser" Loaded="OSMMapBrowser_Loaded"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Средняя цена квадратного метра жилья по районам Москвы" Grid.Row="0" Width="520"/>
+        <WebBrowser x:Name="OSMMapBrowser" Loaded="OSMMapBrowser_Loaded" Grid.Row="1"/>
     </Grid>
 </Page>

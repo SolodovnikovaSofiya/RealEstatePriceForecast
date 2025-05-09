@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:RealEstatePriceForecast.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="700" d:DesignWidth="1000"
+      d:DesignHeight="550" d:DesignWidth="1000"
       Title="Поиск недвижимости">
 
     <Grid>
@@ -16,7 +16,7 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Column="0" Orientation="Vertical">
-            <TextBlock Text="Минут до метро:"/>
+            <TextBlock Text="Минут до метро:" Margin="0,10,0,10"/>
             <TextBox x:Name="txtMinutesToMetro" />
 
             <TextBlock Text="Количество комнат:" />
@@ -36,13 +36,21 @@
 
             <TextBlock Text="Всего этажей в доме:" />
             <TextBox x:Name="txtTotalFloors" />
-
-            <TextBlock Text="Станция метро:" />
-            <ComboBox x:Name="comboMetroStation" DisplayMemberPath="Name" SelectionChanged="cmbMetroStations_SelectionChanged"/>
         </StackPanel>
 
         <StackPanel Grid.Column="1" Orientation="Vertical">
-            <TextBlock Text="Тип квартиры:"/>
+            <TextBlock Text="Станция метро:" />
+            <ComboBox x:Name="comboMetroStation" SelectionChanged="cmbMetroStations_SelectionChanged">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" 
+                       TextWrapping="Wrap"
+                       MaxWidth="200" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
+            <TextBlock Text="Тип квартиры:" Margin="0,10,0,10"/>
             <CheckBox x:Name="chkNewBuilding" Content="Новостройка"/>
             <CheckBox x:Name="chkSecondary" Content="Вторичка" />
 
@@ -51,15 +59,14 @@
             <CheckBox x:Name="chkRenovationDesigner" Content="Дизайнерский" />
             <CheckBox x:Name="chkRenovationEuro" Content="Евроремонт" />
             <CheckBox x:Name="chkRenovationNone" Content="Без ремонта" />
-
-            <Button x:Name="btnPredict" Content="Прогноз цены" Click="btnPredict_Click"/>
-
-            <TextBlock x:Name="txtLatitude" Margin="20,5,5,5"/>
-            <TextBlock x:Name="txtLongitude" Margin="20,5,5,5"/>
         </StackPanel>
 
         <StackPanel Grid.Column="2" Orientation="Vertical">
-            <TextBlock Text="Цена сейчас:"/>
+            <Button x:Name="btnPredict" Click="btnPredict_Click">
+                <TextBlock Text="Прогноз цены" TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Button>
+
+            <TextBlock Text="Цена сейчас:" Margin="0,10,0,10"/>
             <TextBlock x:Name="txtResult"/>
 
             <TextBlock Text="Цена через 5 лет:" />
