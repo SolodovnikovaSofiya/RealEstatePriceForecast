@@ -24,7 +24,7 @@
             </Button>
         </WrapPanel>
         
-        <Frame x:Name="MainFrame" Source="Pages/PredictPage.xaml" Grid.Row="1" NavigationUIVisibility="Hidden"/>
+        <Frame x:Name="MainFrame" Source="Pages/PredictPage.xaml" Grid.Row="1" NavigationUIVisibility="Hidden" VerticalAlignment="Center"/>
 
     </Grid>
 </Window>
