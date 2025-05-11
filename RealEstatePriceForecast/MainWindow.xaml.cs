@@ -32,6 +32,7 @@ namespace RealEstatePriceForecast
         public MainWindow()
         {
             InitializeComponent();
+
         }
 
         private void btnPredict_Click(object sender, RoutedEventArgs e)

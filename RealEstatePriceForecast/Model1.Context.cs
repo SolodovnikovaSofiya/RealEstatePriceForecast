@@ -29,11 +29,7 @@ namespace RealEstatePriceForecast
             return _context;
         }
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            throw new UnintentionalCodeFirstException();
-        }
-    
+
         public virtual DbSet<ApartmentTypes> ApartmentTypes { get; set; }
         public virtual DbSet<MetroStations> MetroStations { get; set; }
         public virtual DbSet<PricePredictions> PricePredictions { get; set; }
